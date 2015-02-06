@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+		PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+		"http://ibatis.apache/org.dtd/sql-map-2.dtd">
+		<sqlMap namespace="ch8">
+			<typeAlias alias="city" type="com.ibatisBean.City"/>
+			<resultMap id="resMap1" class="city">
+				<result property="cityName" jdbcType="VARCHAR"/>
+				<result property="cityCode" jdbcType="NUMBER"/>
+			</resultMap>
+			<select id="getXoneWithDynSql" parameterClass ="int" resultMap="resMap1">
+				select cityName,cityCode from cities
+				<dynamic prepend=" where ">
+					<isNotNull>
+						parentCode=#parentCode#
+					</isNotNull>
+				</dynamic>
+			</select>
+			
+			<!-- 二元标签示例 -->
+			<select id="selctWithTag2" parameterClass="int" resultClass="city">
+				select * from cities 
+				<dynamic prepend=" where ">
+					<isGreaterEqual  compareValue="10">
+						parentCode=1;
+					</isGreaterEqual>
+				</dynamic>
+			</select>
+			
+			<!--  Iterate 标签 p149-->
+			<!-- 注意iterate标签的使用 -->
+			<select id="selectWithIterate" resultClass="city" parameterClass="java.util.List">
+				select * from cities 
+				<dynamic prepend=" where cityCode in ">
+				<isNotNull>
+					<iterate open="(" close=")" conjunction=",">
+						#cityCode[]#
+					</iterate>
+					</isNotNull>
+				</dynamic>
+			</select>
+		</sqlMap>

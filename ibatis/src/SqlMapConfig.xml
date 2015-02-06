@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMapConfig
+		PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
+		"http://ibatis.apache/org.dtd/sql-map-config-2.dtd">
+	
+	<sqlMapConfig>
+		<settings 
+			useStatementNamespaces="true"
+			cacheModelsEnabled="true"
+			enhancementEnabled="true"
+			lazyLoadingEnabled="true" 
+			maxRequests="32"
+			maxSessions="10"
+			maxTransactions="5"
+		/>
+	
+	
+		<transactionManager type="JDBC">
+			<dataSource type="SIMPLE">
+				<property name="JDBC.Driver" value="com.mysql.jdbc.Driver"/>
+				<property name="JDBC.ConnectionURL"  value="jdbc:mysql://localhost/test"/>
+				<property name="JDBC.Username" value="root"/>
+				<property name="JDBC.Password" value=""/>
+			</dataSource>
+		</transactionManager>
+		<sqlMap resource="SqlMap.xml" />
+		<sqlMap resource="SqlMapCh8.xml" />
+		<!-- 全局事务管理器(主动参与) -->
+		<!-- 	
+		<transactionManager type="JTA">
+			<property name="UserTransaction" value="java:/ctx/con/someUserTransaction" />
+			<dataSource type="JNDI">
+				<property name="DataSource" value="java:comp/env/jdbc/someDataSource"/>
+			</dataSource>
+		</transactionManager>
+		 -->
+		<!-- 全局事务管理器(被动参与) -->
+		<!--
+		<transactionManager type="EXTERNAL">
+			<dataSource type="JNDI">
+				<property name="DataSource" value="java:comp/env/jdbc/someDataSource"/>
+			</dataSource>
+		</transactionManager>
+		-->
+	</sqlMapConfig>

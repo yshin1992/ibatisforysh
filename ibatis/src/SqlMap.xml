@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+		PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+		"http://ibatis.apache/org.dtd/sql-map-2.dtd">
+		<sqlMap>
+			<typeAlias alias="city" type="com.ibatisBean.City"/>
+			
+			<!-- 注意 如果从SQL获得的不止一列数据，请使用Bean或Map接收-->		
+			<select id="getZone"  resultClass="city">
+				SELECT * FROM citytemp
+			</select>
+			
+			<select id="getZoneOneRecord"  resultClass="city">
+				SELECT * FROM cities limit 0,1
+			</select>
+			
+			<insert id="insertZone" parameterClass="city">
+				insert into cities values(null,#cityName#,#parentCode#)
+			</insert>
+			
+			<delete id="deleteZone" parameterClass="string" >
+				delete from cities where cityName=#cityName#
+			</delete>
+			
+			<update id="updateZone" parameterClass="string">
+				update cities set parentCode=1 where cityName=#cityName#
+			</update>
+			
+			<update id="updateZone2">
+				update cities set parentCode=3 where cityCode between 19 and 26
+			</update>
+			
+			<sql id="select-cities">
+				select * from cities
+			</sql>
+			
+			<sql id="where-condition" >
+				 <![CDATA[where parentCode > #value:parentCode# ]]>
+				 <!-- 在这里传递int书据不会报错 -->
+			</sql>
+			
+			<select id="getXone"  resultClass="city">
+				<include refid="select-cities"/>
+				<include refid="where-condition" />
+			</select>
+			
+			<!-- 动态结果映射 -->
+			<select id="getDynamicRecord" resultClass="hashmap" remapResults="true">
+			<!-- 当已映射语句执行时重新映射结果 -->
+				select * from cities
+				<dynamic prepend=" where ">
+					<isNotEmpty property="parentCode" >
+						parentCode=#parentCode#
+						<!-- There is no READABLE property named 'parentCode' in class 'java.lang.Integer' 
+						也就是说这里的parentCode必须是某一实体Bean的字段
+						-->
+					</isNotEmpty>
+					<isNotNull property="cityName" prepend=" and ">
+						cityName=#cityName#
+					</isNotNull>
+				</dynamic>
+			</select>
+			
+			<!-- 使用外部参数映射  p95 -->
+			<parameterMap id="paramMap" class="city" >
+				<parameter property="cityName" jdbcType="VARCHAR"/>
+				<parameter property="parentCode" jdbcType="NUMBER"/>
+			</parameterMap>
+			<insert id="insertWithExtMap" parameterMap="paramMap">
+				insert into citytemp(cityName,parentCode) values(?,?)
+			</insert>
+			
+			
+			<!-- 插入数据的同时获取键值 -->
+			<insert id="insertWithKey" parameterMap="paramMap" >
+				<selectKey keyProperty="cityCode" resultClass="int">
+					select nextVal()
+					<!-- 这里调用了自定义函数nextVal() -->
+				</selectKey>
+				insert into cities(cityName,parentCode) values(?,?)
+			</insert>
+			
+			<!-- 事务管理 -->			
+			<select id="selectForTransation" resultClass="int" parameterClass="string">
+				select cityCode from citytemp where cityName=#cityName#
+			</select>
+			
+			<delete id="deleteForTransaction" parameterClass="int" >
+				delete from citytemp where cityCode=#cityCode#
+			</delete>
+			
+			<!-- 调用存储过程 -->
+			<procedure id="selectWithProcedure" resultClass="int">
+				call countRecord();
+			</procedure>
+			
+			<!-- 调用函数 -->
+			<parameterMap id="funtionMap"  class="hashmap">
+				<parameter property="a" jdbcType="NUMBER" />
+				<parameter property="b" jdbcType="NUMBER" />
+			</parameterMap>
+			<select id="selectWithFunction" resultClass="int" parameterMap="funtionMap">
+				select minSample(?,?)
+			</select>
+			
+			<!-- 调用存储过程 -->
+			<procedure id="insertWithProcedure" parameterClass="string">
+				call insertStu(#name#);
+			</procedure>
+			
+			<!-- 使用XML作为参数 -->
+			<select id="selectWithXML" resultClass="city" parameterClass="xml">
+				select * from cities where cityCode=#cityCode# and cityName=#cityName#
+			</select>
+			
+			<!-- 使用DOM作为参数 -->
+			<select id="selectWithDOM" resultClass="city" parameterClass="dom">
+				select * from cities where cityCode=#cityCode#  and cityName=#cityName# 
+			</select>
+			
+			<!-- 生成XML文档 -->
+			<select id="selResultWithXML" resultClass="xml" parameterClass="int">
+				select * from cities where cityCode=#cityCode# 
+			</select>
+			
+			<!-- 映射继承 -->
+			<!-- 略 -->
+			
+			<!--DDL 数据定义语言  -->
+			<statement id="createTable">
+				create table tmp(name varchar(10));
+			</statement>
+			<statement id="dropTable">
+				drop table tmp;
+			</statement>
+			
+		</sqlMap>
