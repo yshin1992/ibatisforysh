@@ -48,6 +48,6 @@ public class City
 	@Override
 	public String toString()
 	{
-		return "CityName=" + cityName + "/CityCode=" + cityCode + "/parentCode=" + parentCode;
+		return "[CityName=" + cityName + "/CityCode=" + cityCode + "/parentCode=" + parentCode + "]";
 	}
 }
